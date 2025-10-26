@@ -1,9 +1,10 @@
-# 🎙️ Voice-Controlled Embedded System
+# 🎙️ Voice-Controlled Embedded System (Windows)
 
 A sophisticated voice-controlled Arduino system that uses AI for speech recognition and natural language processing. Speak commands to control LEDs, servos, and other components through an intelligent interface.
 
 ![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Arduino](https://img.shields.io/badge/arduino-nano%2Funo-green)
+![Windows](https://img.shields.io/badge/platform-windows-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## 📋 Table of Contents
@@ -25,7 +26,7 @@ A sophisticated voice-controlled Arduino system that uses AI for speech recognit
 
 - **Voice Recognition**: Real-time speech-to-text using OpenAI's Whisper model
 - **Natural Language Processing**: AI-powered command interpretation using Llama 3.1
-- **Text-to-Speech**: Audio feedback for system responses
+- **Text-to-Speech**: Audio feedback for system responses using Windows TTS
 - **Multi-threaded Architecture**: Responsive UI with parallel processing
 - **Sequential Command Execution**: Execute complex command sequences
 - **Hardware Control**: 
@@ -66,7 +67,7 @@ A sophisticated voice-controlled Arduino system that uses AI for speech recognit
 │  └────────┬───────────────────┘    │
 └───────────┼─────────────────────────┘
             │
-            ▼ (Serial: /dev/ttyUSB0)
+            ▼ (Serial: COM12)
 ┌─────────────────────────────────────┐
 │      Arduino Nano/Uno               │
 │  ┌────────────────────────────┐    │
@@ -95,7 +96,7 @@ A sophisticated voice-controlled Arduino system that uses AI for speech recognit
 | Breadboard | 1 | Standard size |
 | Jumper Wires | 10+ | Male-to-male |
 | USB Cable | 1 | Arduino compatible |
-| Microphone | 1 | For voice input |
+| Microphone | 1 | For voice input (built-in or USB) |
 
 ### Pin Configuration
 
@@ -112,17 +113,18 @@ GND          →  Servo Ground (Brown/Black)
 ## 💻 Software Requirements
 
 ### System Requirements
-- **Operating System**: Linux, macOS, or Windows
-- **Python**: 3.10 or higher
+- **Operating System**: Windows 10/11 (64-bit)
+- **Python**: 3.10 or 3.11
 - **RAM**: 4GB minimum (8GB recommended)
 - **Storage**: 2GB free space for models
+- **GPU**: Optional (NVIDIA with CUDA for faster processing)
 
 ### Required Software
-- Python 3.10+
-- Pyenv (for Python version management)
+- Python 3.10+ (from python.org or Microsoft Store)
+- Pyenv-win (for Python version management)
 - Arduino CLI (for Arduino programming)
 - Ollama (for LLM inference)
-- Git (for version control)
+- Git for Windows
 
 ### Python Dependencies
 - `torch` - PyTorch for ML models
@@ -130,44 +132,92 @@ GND          →  Servo Ground (Brown/Black)
 - `pyserial` - Serial communication
 - `sounddevice` - Audio recording
 - `numpy` - Numerical operations
-- `keyboard` - Keyboard event handling
-- `pyttsx3` - Text-to-speech
+- `keyboard` - Keyboard event handling (requires admin rights)
+- `pyttsx3` - Text-to-speech (uses Windows SAPI)
 - `ollama` - Ollama client
 
 ## 📦 Installation
 
-### 1. Clone the Repository
+### 1. Install Prerequisites
 
-```bash
+#### Install Python
+```powershell
+# Option 1: Download from python.org
+# Visit https://www.python.org/downloads/ and install Python 3.11
+
+# Option 2: Using winget (Windows Package Manager)
+winget install Python.Python.3.11
+
+# Verify installation
+python --version
+```
+
+#### Install Git
+```powershell
+winget install Git.Git
+```
+
+#### Install Pyenv-win (Optional - for managing Python versions)
+```powershell
+# Using PowerShell (Run as Administrator)
+Invoke-WebRequest -UseBasicParsing -Uri "https://raw.githubusercontent.com/pyenv-win/pyenv-win/master/pyenv-win/install-pyenv-win.ps1" -OutFile "./install-pyenv-win.ps1"; &"./install-pyenv-win.ps1"
+
+# Add to PATH (if not automatically added)
+# Add these to System Environment Variables:
+# %USERPROFILE%\.pyenv\pyenv-win\bin
+# %USERPROFILE%\.pyenv\pyenv-win\shims
+```
+
+#### Install Arduino CLI
+```powershell
+# Using winget
+winget install ArduinoSA.Arduino-CLI
+
+# Verify installation
+arduino-cli version
+```
+
+#### Install Ollama
+```powershell
+# Download and install from https://ollama.com/download/windows
+# Or use winget:
+winget install Ollama.Ollama
+
+# After installation, pull the model
+ollama pull llama3.1
+```
+
+### 2. Clone the Repository
+
+```powershell
+# Open PowerShell or Command Prompt
 git clone https://github.com/YOUR_USERNAME/voice-controlled-system.git
 cd voice-controlled-system
 ```
 
-### 2. Setup Python Environment
+### 3. Setup Python Environment
 
-```bash
-# Install and set Python version
-pyenv install 3.11.9
-pyenv local 3.11.9
-
+```powershell
 # Create virtual environment
 python -m venv venv
 
 # Activate virtual environment
-# Linux/Mac:
-source venv/bin/activate
-# Windows:
-venv\Scripts\activate
+.\venv\Scripts\activate
+
+# You should see (venv) in your prompt
 ```
 
-### 3. Install Python Dependencies
+### 4. Install Python Dependencies
 
-```bash
+```powershell
 # Upgrade pip
-pip install --upgrade pip
+python -m pip install --upgrade pip
 
-# Install PyTorch (CPU version)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# Install PyTorch (CPU version - recommended for most users)
+pip install torch torchvision torchaudio
+
+# For NVIDIA GPU users (faster processing):
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Install other dependencies
 pip install pyserial numpy sounddevice keyboard pyttsx3 ollama transformers
@@ -176,48 +226,55 @@ pip install pyserial numpy sounddevice keyboard pyttsx3 ollama transformers
 pip install -r requirements.txt
 ```
 
-### 4. Install Ollama
+### 5. Setup Arduino CLI
 
-```bash
-# Linux/Mac:
-curl -fsSL https://ollama.com/install.sh | sh
-
-# Windows: Download from https://ollama.com/download
-
-# Pull the LLM model
-ollama pull llama3.1
-```
-
-### 5. Install Arduino CLI
-
-```bash
-# Linux/Mac:
-curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
-
-# Windows:
-winget install ArduinoSA.Arduino-CLI
-
-# Initialize and install cores
+```powershell
+# Initialize Arduino CLI
 arduino-cli config init
+
+# Update core index
 arduino-cli core update-index
+
+# Install Arduino AVR core
 arduino-cli core install arduino:avr
+
+# Install Servo library
 arduino-cli lib install "Servo"
 ```
 
-### 6. Upload Arduino Sketch
+### 6. Find Your Arduino Port
 
-```bash
+```powershell
+# List connected Arduino boards
+arduino-cli board list
+
+# Output will look like:
+# Port         Protocol Type              Board Name FQBN
+# COM3         serial   Serial Port (USB) Arduino Nano arduino:avr:nano
+# COM12        serial   Serial Port (USB) Arduino Uno arduino:avr:uno
+
+# Note your COM port (e.g., COM3, COM12, etc.)
+```
+
+### 7. Upload Arduino Sketch
+
+```powershell
 # Navigate to Arduino sketch folder
-cd arduino_sketch
+cd arduino_sketch\voice_control_arduino
 
-# Compile
+# Compile for Arduino Nano (Old Bootloader - most common for clones)
 arduino-cli compile --fqbn arduino:avr:nano:cpu=atmega328old voice_control_arduino.ino
 
-# Upload (replace /dev/ttyUSB0 with your port)
-arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:nano:cpu=atmega328old voice_control_arduino.ino
+# Upload (replace COM3 with your port)
+arduino-cli upload -p COM3 --fqbn arduino:avr:nano:cpu=atmega328old voice_control_arduino.ino
 
-# Verify upload
-arduino-cli monitor -p /dev/ttyUSB0 -c baudrate=9600
+# For Arduino Uno, use:
+# arduino-cli compile --fqbn arduino:avr:uno voice_control_arduino.ino
+# arduino-cli upload -p COM3 --fqbn arduino:avr:uno voice_control_arduino.ino
+
+# Verify upload with serial monitor
+arduino-cli monitor -p COM3 -c baudrate=9600
+# Press Ctrl+C to exit monitor
 ```
 
 ## 🔌 Hardware Setup
@@ -260,35 +317,59 @@ arduino-cli monitor -p /dev/ttyUSB0 -c baudrate=9600
 
 ### Starting the System
 
-1. **Start Ollama Server** (in a separate terminal):
-```bash
+**Method 1: Using PowerShell (Recommended)**
+
+```powershell
+# Step 1: Start Ollama (in a separate PowerShell window)
 ollama serve
-```
 
-2. **Update Configuration**:
-Edit `main.py` and update the serial port:
-```python
-CONFIG = {
-    "serial_port": "/dev/ttyUSB0",  # Change to your port
-    # ... other settings
-}
-```
+# Step 2: Navigate to project folder
+cd C:\path\to\voice-controlled-system
 
-3. **Run the Python Script**:
-```bash
-# Activate virtual environment
-source venv/bin/activate
+# Step 3: Activate virtual environment
+.\venv\Scripts\activate
 
-# Run the application
+# Step 4: Update serial port in main.py (if needed)
+# Open main.py and change COM port:
+#   "serial_port": "COM3",  # Change to your COM port
+
+# Step 5: Run the application (requires Administrator privileges)
+# Right-click PowerShell and "Run as Administrator"
 python main.py
 ```
 
-4. **Using Voice Commands**:
-   - Hold `Ctrl` key to start recording
-   - Speak your command clearly
-   - Release `Ctrl` to stop recording
-   - Wait for AI processing and response
-   - Press `Esc` to exit the program
+**Method 2: Using Batch Script (Easy Method)**
+
+Create a file named `run.bat`:
+```batch
+@echo off
+echo Starting Voice-Controlled System...
+echo.
+
+REM Start Ollama in background
+start /B ollama serve
+
+REM Wait for Ollama to start
+timeout /t 3 /nobreak > nul
+
+REM Activate virtual environment
+call venv\Scripts\activate.bat
+
+REM Run the application
+python main.py
+
+pause
+```
+
+Then simply double-click `run.bat` to start the system.
+
+### Using Voice Commands
+
+1. **Start Recording**: Hold the `Ctrl` key
+2. **Speak Clearly**: Give your command while holding Ctrl
+3. **Stop Recording**: Release the `Ctrl` key
+4. **Wait for Response**: The AI will process and respond
+5. **Exit Program**: Press `Esc`
 
 ### Example Voice Commands
 
@@ -336,53 +417,102 @@ This means:
 
 ## 🐛 Troubleshooting
 
-### Common Issues
+### Common Issues (Windows Specific)
 
-#### 1. Serial Port Not Found
-```bash
-# List available ports
-arduino-cli board list
-
-# On Linux, add user to dialout group
-sudo usermod -a -G dialout $USER
-# Log out and back in for changes to take effect
+#### 1. "Access is denied" when running main.py
+**Solution**: Run PowerShell or Command Prompt as Administrator
+```powershell
+# Right-click PowerShell → "Run as Administrator"
+cd C:\path\to\voice-controlled-system
+.\venv\Scripts\activate
+python main.py
 ```
 
-#### 2. Microphone Not Working
-```bash
-# Test microphone
+#### 2. Serial Port Access Denied
+**Solution**: Close Arduino IDE, Serial Monitor, or any program using the COM port
+```powershell
+# Check which program is using the port
+# Close Arduino IDE and other serial programs
+# Then try again
+```
+
+#### 3. Arduino Not Detected
+```powershell
+# Install CH340 drivers (for Arduino clones)
+# Download from: http://www.wch.cn/downloads/CH341SER_ZIP.html
+
+# Check Device Manager
+# Look for "Ports (COM & LPT)"
+# Your Arduino should appear as "USB-SERIAL CH340 (COMX)"
+```
+
+#### 4. Microphone Not Working
+```powershell
+# Check Windows microphone permissions
+# Settings → Privacy → Microphone → Allow apps to access microphone
+
+# Test microphone in Python
 python -c "import sounddevice as sd; print(sd.query_devices())"
 
-# Install audio dependencies (Linux)
-sudo apt-get install portaudio19-dev python3-pyaudio
+# If microphone still doesn't work, install audio backend:
+pip install pyaudio
 ```
 
-#### 3. Ollama Connection Failed
-```bash
+#### 5. Ollama Not Starting
+```powershell
 # Check if Ollama is running
 curl http://localhost:11434/api/tags
 
-# Start Ollama
+# If not running, start it:
 ollama serve
 
-# Verify model is downloaded
+# In another window, verify model is installed:
 ollama list
+
+# If model not installed:
+ollama pull llama3.1
 ```
 
-#### 4. Arduino Upload Failed
-```bash
-# Try with different bootloader
-arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:nano:cpu=atmega328 voice_control_arduino.ino
+#### 6. "pyttsx3" TTS Not Working
+```powershell
+# Reinstall pyttsx3
+pip uninstall pyttsx3
+pip install pyttsx3
 
-# Check permissions (Linux)
-sudo chmod 666 /dev/ttyUSB0
+# Check Windows Speech settings
+# Settings → Time & Language → Speech → Make sure a voice is selected
 ```
 
-#### 5. Speech Recognition Not Working
-- Ensure microphone permissions are granted
-- Check if correct audio device is selected
-- Speak clearly and closer to microphone
-- Reduce background noise
+#### 7. PyTorch CUDA Issues (GPU Users)
+```powershell
+# Check if CUDA is available
+python -c "import torch; print(torch.cuda.is_available())"
+
+# If False, reinstall PyTorch with CUDA support:
+pip uninstall torch torchvision torchaudio
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Verify CUDA installation
+nvidia-smi
+```
+
+#### 8. Virtual Environment Activation Issues
+```powershell
+# If you get execution policy error:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Then try activating again:
+.\venv\Scripts\activate
+```
+
+#### 9. Arduino Upload Failed (Wrong Bootloader)
+```powershell
+# Try new bootloader instead of old:
+arduino-cli upload -p COM3 --fqbn arduino:avr:nano:cpu=atmega328 voice_control_arduino.ino
+
+# Or for Uno:
+arduino-cli upload -p COM3 --fqbn arduino:avr:uno voice_control_arduino.ino
+```
 
 ## ⚙️ Configuration
 
@@ -394,10 +524,25 @@ CONFIG = {
     "llm_model": "llama3.1",                   # Ollama model name
     "sample_rate": 16000,                      # Audio sample rate
     "record_key": "ctrl",                      # Recording hotkey
-    "serial_port": "/dev/ttyUSB0",            # Arduino port
+    "serial_port": "COM3",                     # Arduino COM port (CHANGE THIS!)
     "baud_rate": 9600,                         # Serial baud rate
     "response_timeout": 15,                    # LLM timeout (seconds)
 }
+```
+
+### Finding Your COM Port
+
+```powershell
+# Method 1: Arduino CLI
+arduino-cli board list
+
+# Method 2: Device Manager
+# Windows Key → Type "Device Manager"
+# Expand "Ports (COM & LPT)"
+# Look for Arduino device (shows COM number)
+
+# Method 3: Python
+python -c "import serial.tools.list_ports; print([p.device for p in serial.tools.list_ports.comports()])"
 ```
 
 ### Customizing Voice Commands
@@ -429,21 +574,34 @@ voice-controlled-system/
 ├── main.py                      # Main Python application
 ├── requirements.txt             # Python dependencies
 ├── README.md                    # This file
+├── run.bat                      # Windows batch script to run
 ├── .gitignore                   # Git ignore rules
 │
 ├── arduino_sketch/
 │   └── voice_control_arduino/
 │       └── voice_control_arduino.ino  # Arduino code
 │
-├── docs/
-│   ├── HARDWARE_SETUP.md       # Detailed hardware guide
-│   ├── API_REFERENCE.md        # Code documentation
-│   └── CONTRIBUTING.md         # Contribution guidelines
+├── venv/                        # Virtual environment (created during setup)
 │
-└── examples/
-    ├── basic_led_control.py    # Simple LED example
-    └── advanced_patterns.py    # Complex sequences
+└── docs/
+    ├── WINDOWS_SETUP.md        # Detailed Windows setup guide
+    └── TROUBLESHOOTING.md      # Extended troubleshooting
 ```
+
+## 🎯 Quick Start Checklist
+
+- [ ] Install Python 3.10 or 3.11
+- [ ] Install Git for Windows
+- [ ] Install Arduino CLI
+- [ ] Install Ollama and download llama3.1 model
+- [ ] Clone the repository
+- [ ] Create virtual environment
+- [ ] Install Python dependencies
+- [ ] Wire up Arduino components
+- [ ] Upload Arduino sketch
+- [ ] Update COM port in main.py
+- [ ] Run as Administrator
+- [ ] Test with voice commands
 
 ## 🤝 Contributing
 
@@ -454,13 +612,6 @@ Contributions are welcome! Please follow these steps:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow PEP 8 style guide for Python code
-- Add comments for complex logic
-- Test hardware changes before committing
-- Update documentation for new features
 
 ## 📝 License
 
@@ -480,30 +631,43 @@ Project Link: [https://github.com/YOUR_USERNAME/voice-controlled-system](https:/
 ## 🗺️ Roadmap
 
 - [ ] Add support for more Arduino boards (ESP32, Mega)
-- [ ] Implement gesture control alongside voice
-- [ ] Add web interface for remote control
+- [ ] Create Windows installer (.exe)
+- [ ] Add GUI interface with PyQt
 - [ ] Support for multiple language voice commands
 - [ ] Add motor driver support for DC motors
-- [ ] Implement feedback loop with sensors
-- [ ] Create mobile app interface
+- [ ] Implement web interface for remote control
 - [ ] Add command history and logging
+- [ ] Create mobile app interface
 
-## 📊 Performance
+## 📊 Performance (Windows)
 
-- **Voice Recognition Latency**: ~2-3 seconds
+- **Voice Recognition Latency**: ~2-3 seconds (CPU) / ~1-2 seconds (GPU)
 - **LLM Response Time**: ~3-5 seconds
 - **Serial Communication**: 9600 baud (adjustable)
 - **Command Execution**: Real-time
+- **RAM Usage**: ~1-2GB (with models loaded)
 
 ## 🔒 Security Notes
 
 - This system runs locally - no cloud dependencies
+- Requires Administrator privileges for keyboard monitoring
 - Microphone access required for voice input
 - Serial port access required for Arduino communication
 - No sensitive data is transmitted externally
+- Windows Defender may flag keyboard library (false positive)
+
+## 💡 Windows-Specific Tips
+
+1. **Run as Administrator**: Required for keyboard library to work
+2. **Disable Antivirus temporarily**: If it blocks keyboard library
+3. **Use PowerShell ISE**: Better for debugging
+4. **Check Windows Updates**: Ensure latest drivers are installed
+5. **Use USB 2.0 ports**: More stable for Arduino connection
+6. **Close Arduino IDE**: Before running the Python script
+7. **Install Visual C++ Redistributable**: If you get DLL errors
 
 ---
 
-**Made with ❤️ by [Your Name]**
+**Made with ❤️ for Windows Users**
 
 *Last Updated: October 2025*
